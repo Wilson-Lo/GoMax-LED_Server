@@ -14,6 +14,10 @@ type ledMode struct {
     Led_mode int `json:"led_mode"`
 }
 
+type speed struct {
+    Speed int `json:"speed"`
+}
+
 
 func readTXTByKeyWord(keyWord string) string {
 

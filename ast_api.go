@@ -96,7 +96,7 @@ func api_GetLEDMode(w http.ResponseWriter, r *http.Request) {
 *  Set LED Mode
 */
 func api_SetLEDMode(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("api_SetLEDMode")
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -141,7 +141,7 @@ func api_GetSpeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    var setting_line = readTXTByKeyWord("mode")
+    var setting_line = readTXTByKeyWord("speed")
     fmt.Println(setting_line)
     result := setting_line == KEY_NOT_FIND
 
@@ -151,6 +151,47 @@ func api_GetSpeed(w http.ResponseWriter, r *http.Request) {
     }else{
        fmt.Fprintf(w,"{\"speed\":-1}")
     }
+	w.(http.Flusher).Flush()
+}
+
+/**
+*  Set Speed
+*/
+func api_SetSpeed(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonDecoder := json.NewDecoder(r.Body)
+	var speedObject speed
+    err := jsonDecoder.Decode(&speedObject)
+    if err != nil {
+       fmt.Println("Set Speed failed !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+
+    fmt.Print("New Speed ")
+    fmt.Println(speedObject.Speed)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[3] = "speed " + strconv.Itoa(speedObject.Speed)
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
+	fmt.Fprintf(w,"{\"result\":\"ok\"}")
 	w.(http.Flusher).Flush()
 }
 

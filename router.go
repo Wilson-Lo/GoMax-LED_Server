@@ -38,6 +38,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/api/led/mode", api_GetLEDMode).Methods("GET")
 	r.HandleFunc("/api/led/mode", api_SetLEDMode).Methods("POST")
 	r.HandleFunc("/api/led/speed", api_GetSpeed).Methods("GET")
+	r.HandleFunc("/api/led/speed", api_SetSpeed).Methods("POST")
 	r.HandleFunc("/api/led/background_rgb", api_GetBackGroundRGB).Methods("GET")
 	r.HandleFunc("/api/led/text_rgb", api_GetTextRGB).Methods("GET")
 	r.HandleFunc("/api/led/text", api_GetText).Methods("GET")
