@@ -225,6 +225,47 @@ func api_GetVivid(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
+*  Set Vivid ( 0: Off, 1: On ,Color on or off)
+*/
+func api_SetVivid(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonDecoder := json.NewDecoder(r.Body)
+	var vividObject vivid
+    err := jsonDecoder.Decode(&vividObject)
+    if err != nil {
+       fmt.Println("Set Vivid failed !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+
+    fmt.Print("New Vivid ")
+    fmt.Println(vividObject.Vivid)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[4] = "vivid " + strconv.Itoa(vividObject.Vivid)
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
+	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+	w.(http.Flusher).Flush()
+}
+
+/**
 *  Get Text Content
 */
 func api_GetText(w http.ResponseWriter, r *http.Request) {
@@ -258,5 +299,46 @@ func api_GetText(w http.ResponseWriter, r *http.Request) {
     fmt.Println("text = " + last_line)
 
     fmt.Fprintf(w,"{\"content\":\"" + last_line + "\"}")
+	w.(http.Flusher).Flush()
+}
+
+/**
+*  Set Text Content
+*/
+func api_SetText(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonDecoder := json.NewDecoder(r.Body)
+	var textObject text
+    err := jsonDecoder.Decode(&textObject)
+    if err != nil {
+       fmt.Println("Set Text content failed !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+
+    fmt.Print("New Text ")
+    fmt.Println(textObject.Content)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[5] = textObject.Content
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
+	fmt.Fprintf(w,"{\"result\":\"ok\"}")
 	w.(http.Flusher).Flush()
 }

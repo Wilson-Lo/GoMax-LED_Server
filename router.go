@@ -42,7 +42,9 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/api/led/background_rgb", api_GetBackGroundRGB).Methods("GET")
 	r.HandleFunc("/api/led/text_rgb", api_GetTextRGB).Methods("GET")
 	r.HandleFunc("/api/led/text", api_GetText).Methods("GET")
+	r.HandleFunc("/api/led/text", api_SetText).Methods("POST")
 	r.HandleFunc("/api/led/vivid", api_GetVivid).Methods("GET")
+	r.HandleFunc("/api/led/vivid", api_SetVivid).Methods("POST")
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./www/"))))
 	return r
 }
