@@ -6,7 +6,8 @@ import (
 //	"github.com/gorilla/mux"
 	"os"
 	"log"
-	//"strconv"
+	"io/ioutil"
+	"strconv"
 	"strings"
 //	"io/ioutil"
 	"bufio"
@@ -100,8 +101,8 @@ func api_SetLEDMode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	jsonDecoder := json.NewDecoder(r.Body)
-	var t ledMode
-    err := jsonDecoder.Decode(&t)
+	var ledModeObject ledMode
+    err := jsonDecoder.Decode(&ledModeObject)
     if err != nil {
        fmt.Println("Set LED Mode failed !")
        fmt.Fprintf(w,"{\"result\":\"failed\"}")
@@ -109,7 +110,25 @@ func api_SetLEDMode(w http.ResponseWriter, r *http.Request) {
        panic(err)
        return
     }
-    fmt.Println(t.Led_mode)
+
+    fmt.Print("New LED Mode ")
+    fmt.Println(ledModeObject.Led_mode)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[0] = "mode " + strconv.Itoa(ledModeObject.Led_mode)
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
 	fmt.Fprintf(w,"{\"result\":\"ok\"}")
 	w.(http.Flusher).Flush()
 }
