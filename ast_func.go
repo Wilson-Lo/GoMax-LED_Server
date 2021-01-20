@@ -30,6 +30,16 @@ type text struct {
     Content string `json:"content"`
 }
 
+// Text RGB setting json structure
+type textRGB struct {
+    R int `json:"r"`
+    G int `json:"g"`
+    B int `json:"b"`
+}
+
+/**
+* Read .txt file line by keyword
+*/
 func readTXTByKeyWord(keyWord string) string {
 
 	 file, err := os.Open(settingTXTPath)

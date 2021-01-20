@@ -1,15 +1,14 @@
 package main
+
 import (
 	"fmt"
 	"net/http"
 	"encoding/json"
-//	"github.com/gorilla/mux"
 	"os"
 	"log"
 	"io/ioutil"
 	"strconv"
 	"strings"
-//	"io/ioutil"
 	"bufio"
 )
 
@@ -49,6 +48,51 @@ func api_GetTextRGB(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
+*  Set Text RGB
+*/
+func api_SetTextRGB(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonDecoder := json.NewDecoder(r.Body)
+	var textRGBObject textRGB
+    err := jsonDecoder.Decode(&textRGBObject)
+    if err != nil {
+       fmt.Println("Set Text RGB failed !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+
+    fmt.Print("New Text RGB ")
+    fmt.Print(textRGBObject.R)
+    fmt.Print("")
+    fmt.Print(textRGBObject.G)
+    fmt.Print("")
+    fmt.Println(textRGBObject.B)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[2] = "text " + strconv.Itoa(textRGBObject.R) + " " + strconv.Itoa(textRGBObject.G) + " " + strconv.Itoa(textRGBObject.B)
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
+	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+	w.(http.Flusher).Flush()
+}
+
+/**
 *  Get Background RGB
 */
 func api_GetBackGroundRGB(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +112,51 @@ func api_GetBackGroundRGB(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w,"{\"type\":\"background\", \"r\":-1,\"g\":-1,\"b\":-1}")
     }
     w.(http.Flusher).Flush()
+}
+
+/**
+*  Set Background RGB
+*/
+func api_SetBackGroundRGB(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	jsonDecoder := json.NewDecoder(r.Body)
+	var textRGBObject textRGB
+    err := jsonDecoder.Decode(&textRGBObject)
+    if err != nil {
+       fmt.Println("Set Background RGB failed !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+
+    fmt.Print("New Text RGB ")
+    fmt.Print(textRGBObject.R)
+    fmt.Print("")
+    fmt.Print(textRGBObject.G)
+    fmt.Print("")
+    fmt.Println(textRGBObject.B)
+
+    input, err := ioutil.ReadFile(settingTXTPath)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    lines := strings.Split(string(input), "\n")
+    lines[1] = "background " + strconv.Itoa(textRGBObject.R) + " " + strconv.Itoa(textRGBObject.G) + " " + strconv.Itoa(textRGBObject.B)
+    output := strings.Join(lines, "\n")
+    err = ioutil.WriteFile(settingTXTPath, []byte(output), 0644)
+    if err != nil {
+        log.Fatalln(err)
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+        return
+    }
+	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+	w.(http.Flusher).Flush()
 }
 
 /**
