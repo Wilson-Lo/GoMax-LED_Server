@@ -9,6 +9,11 @@ import (
 
 var settingTXTPath = "../setting.txt"
 var KEY_NOT_FIND = "notFind"
+var KEY_MODE = "mode"
+var KEY_BACKGROUND = "background"
+var KEY_TEXT = "text"
+var KEY_SPEED = "speed"
+var KEY_VIVID = "vivid"
 
 // LED Mode setting json structure
 type ledMode struct {

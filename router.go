@@ -7,6 +7,7 @@ import (
 
 func NewRouter() *mux.Router {    
 	r := mux.NewRouter()
+	r.HandleFunc("/api/led/all", api_GetALLSetting).Methods("GET")
 	r.HandleFunc("/api/led/mode", api_GetLEDMode).Methods("GET")
 	r.HandleFunc("/api/led/mode", api_SetLEDMode).Methods("POST")
 	r.HandleFunc("/api/led/speed", api_GetSpeed).Methods("GET")

@@ -28,7 +28,7 @@ func api_GetTextRGB(w http.ResponseWriter, r *http.Request) {
     scanner := bufio.NewScanner(file)
     var first_line string
     for scanner.Scan() {
-        if(strings.Contains(scanner.Text(), "text")){
+        if(strings.Contains(scanner.Text(), KEY_TEXT)){
            first_line = scanner.Text()
            break
         }
@@ -100,7 +100,7 @@ func api_GetBackGroundRGB(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-    var setting_line = readTXTByKeyWord("background")
+    var setting_line = readTXTByKeyWord(KEY_BACKGROUND)
     fmt.Println(setting_line)
 
     result := setting_line == KEY_NOT_FIND
@@ -168,7 +168,7 @@ func api_GetLEDMode(w http.ResponseWriter, r *http.Request) {
 	//vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    var setting_line = readTXTByKeyWord("mode")
+    var setting_line = readTXTByKeyWord(KEY_MODE)
     fmt.Println(setting_line)
     result := setting_line == KEY_NOT_FIND
 
@@ -230,7 +230,7 @@ func api_GetSpeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
-    var setting_line = readTXTByKeyWord("speed")
+    var setting_line = readTXTByKeyWord(KEY_SPEED)
     fmt.Println(setting_line)
     result := setting_line == KEY_NOT_FIND
 
@@ -292,7 +292,7 @@ func api_GetVivid(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-    var setting_line = readTXTByKeyWord("vivid")
+    var setting_line = readTXTByKeyWord(KEY_VIVID)
     fmt.Println(setting_line)
     result := setting_line == KEY_NOT_FIND
 
@@ -376,7 +376,7 @@ func api_GetText(w http.ResponseWriter, r *http.Request) {
             last_line = scanner.Text()
         }
 
-        if(strings.Contains(scanner.Text(), "vivid")){
+        if(strings.Contains(scanner.Text(), KEY_VIVID)){
            isLastLine = true
         }
     }
@@ -429,5 +429,83 @@ func api_SetText(w http.ResponseWriter, r *http.Request) {
         return
     }
 	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+	w.(http.Flusher).Flush()
+}
+
+/**
+*  Get All Settings
+*/
+func api_GetALLSetting(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+
+    file, err := os.Open(settingTXTPath)
+    if err != nil {
+       log.Fatal(err)
+    }
+
+    scanner := bufio.NewScanner(file)
+    var isLastLine = false
+    var mode string
+    var speed string
+    var text_content string
+    var vivid = false
+    var background_rgb [3] string
+    var text_rgb [3] string
+
+    for scanner.Scan() {
+
+       if(strings.Contains(scanner.Text(), KEY_MODE)){
+           data := strings.Split(scanner.Text(), " ")
+           fmt.Println("mode = " + data[1])
+           mode = data[1]
+       }
+
+       if(strings.Contains(scanner.Text(), KEY_BACKGROUND)){
+           data := strings.Split(scanner.Text(), " ")
+           fmt.Println("background rgb = " + data[1] + " " + data[2] + " " + data[3] + " " )
+           background_rgb[0] = data[1]
+           background_rgb[1] = data[2]
+           background_rgb[2] = data[3]
+       }
+
+       if(strings.Contains(scanner.Text(), KEY_TEXT)){
+            data := strings.Split(scanner.Text(), " ")
+            fmt.Println("text rgb = " + data[1] + " " + data[2] + " " + data[3] + " " )
+            text_rgb[0] = data[1]
+            text_rgb[1] = data[2]
+            text_rgb[2] = data[3]
+       }
+
+       if(strings.Contains(scanner.Text(), KEY_SPEED)){
+            data := strings.Split(scanner.Text(), " ")
+            fmt.Println("speed = " + data[1])
+            speed = data[1]
+       }
+
+       if(isLastLine){
+          text_content = scanner.Text()
+          fmt.Println("text content = " + scanner.Text())
+       }
+
+       if(strings.Contains(scanner.Text(), KEY_VIVID)){
+            data := strings.Split(scanner.Text(), " ")
+            fmt.Println("vivid = " + data[1])
+            isLastLine = true
+             switch data[1] {
+             case "0":
+                  vivid = false
+                  break;
+
+             case "1":
+                  vivid = true
+                  break;
+              }
+       }
+    }
+
+    fmt.Fprintf(w,"{\"led_mode\":"+ mode +",\"speed\":" + speed + ",\"vivid\":" + strconv.FormatBool(vivid) + ", \"content\": \"" + text_content + "\","+"\"text_rgb\":{\"r\":" + text_rgb[0] + ",\"g\":" + text_rgb[1] + ",\"b\":" + text_rgb[2] + "},"+ "\"background_rgb\":{\"r\":" + background_rgb[0] + ",\"g\":" + background_rgb[1] + ",\"b\":" + background_rgb[2] + "}}");
 	w.(http.Flusher).Flush()
 }
