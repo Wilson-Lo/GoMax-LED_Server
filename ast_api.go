@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"bufio"
+    "encoding/base64"
 )
 
 /**
@@ -68,9 +69,9 @@ func api_SetTextRGB(w http.ResponseWriter, r *http.Request) {
 
     fmt.Print("New Text RGB ")
     fmt.Print(textRGBObject.R)
-    fmt.Print("")
+    fmt.Print(" ")
     fmt.Print(textRGBObject.G)
-    fmt.Print("")
+    fmt.Print(" ")
     fmt.Println(textRGBObject.B)
 
     input, err := ioutil.ReadFile(settingTXTPath)
@@ -135,9 +136,9 @@ func api_SetBackGroundRGB(w http.ResponseWriter, r *http.Request) {
 
     fmt.Print("New Text RGB ")
     fmt.Print(textRGBObject.R)
-    fmt.Print("")
+    fmt.Print(" ")
     fmt.Print(textRGBObject.G)
-    fmt.Print("")
+    fmt.Print(" ")
     fmt.Println(textRGBObject.B)
 
     input, err := ioutil.ReadFile(settingTXTPath)
@@ -508,4 +509,35 @@ func api_GetALLSetting(w http.ResponseWriter, r *http.Request) {
 
     fmt.Fprintf(w,"{\"led_mode\":"+ mode +",\"speed\":" + speed + ",\"vivid\":" + strconv.FormatBool(vivid) + ", \"content\": \"" + text_content + "\","+"\"text_rgb\":{\"r\":" + text_rgb[0] + ",\"g\":" + text_rgb[1] + ",\"b\":" + text_rgb[2] + "},"+ "\"background_rgb\":{\"r\":" + background_rgb[0] + ",\"g\":" + background_rgb[1] + ",\"b\":" + background_rgb[2] + "}}");
 	w.(http.Flusher).Flush()
+}
+
+/**
+*  Upload GIF
+*/
+func api_UploadGIF(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+    fmt.Println("api_UploadGIF")
+    jsonDecoder := json.NewDecoder(r.Body)
+	var gifObject upLoadGIF
+    err := jsonDecoder.Decode(&gifObject)
+    if err != nil {
+       fmt.Println("api_UploadGIF JSON error !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+    fmt.Println(gifObject.Base64)
+    unbased, err := base64.StdEncoding.DecodeString(gifObject.Base64)
+    if err != nil {
+        fmt.Println("api_UploadGIF base64 error !")
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+    	return
+    }
+    _ = ioutil.WriteFile("../led.gif", unbased, 0644)
+   	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+   	w.(http.Flusher).Flush()
 }

@@ -42,6 +42,11 @@ type textRGB struct {
     B int `json:"b"`
 }
 
+// GIF
+type upLoadGIF struct {
+    Base64 string `json:"base64"`
+}
+
 /**
 * Read .txt file line by keyword
 */
