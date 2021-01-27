@@ -47,6 +47,11 @@ type upLoadGIF struct {
     Base64 string `json:"base64"`
 }
 
+// Hostname
+type hostName struct {
+    Hostname string `json:"hostname"`
+}
+
 /**
 * Read .txt file line by keyword
 */

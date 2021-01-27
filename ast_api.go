@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"bufio"
+	"os/exec"
     "encoding/base64"
 )
 
@@ -541,3 +542,51 @@ func api_UploadGIF(w http.ResponseWriter, r *http.Request) {
    	fmt.Fprintf(w,"{\"result\":\"ok\"}")
    	w.(http.Flusher).Flush()
 }
+
+/**
+*  Set Hostname
+*  file location: /etc/hostname
+*/
+func api_SetHostName(w http.ResponseWriter, r *http.Request) {
+
+    fmt.Println("api_SetHostName")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+    jsonDecoder := json.NewDecoder(r.Body)
+	var hostnameObject hostName
+    err := jsonDecoder.Decode(&hostnameObject)
+    if err != nil {
+       fmt.Println("api_SetHostName JSON error !")
+       fmt.Fprintf(w,"{\"result\":\"failed\"}")
+       w.(http.Flusher).Flush()
+       panic(err)
+       return
+    }
+    fmt.Println(hostnameObject.Hostname)
+    cmd := exec.Command( "sudo", "sed", "-i", "1c " + hostnameObject.Hostname, "/etc/hostname")
+	_,_ = cmd.Output()
+   	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+   	w.(http.Flusher).Flush()
+}
+
+/**
+*  Get Hostname
+*/
+func api_GetHostName(w http.ResponseWriter, r *http.Request) {
+
+    fmt.Println("api_GetHostName")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+    hostname,err := os.Hostname()
+    if err == nil {
+       fmt.Fprintf(w,"{\"result\":true,\"hostname\":\"" + hostname + "\"}")
+       w.(http.Flusher).Flush()
+    }else{
+       fmt.Fprintf(w,"{\"result\":false,\"hostname\":\"\"}")
+       w.(http.Flusher).Flush()
+    }
+}
+
