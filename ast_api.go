@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"os"
+	"net"
 	"log"
 	"io/ioutil"
 	"strconv"
@@ -508,7 +509,53 @@ func api_GetALLSetting(w http.ResponseWriter, r *http.Request) {
        }
     }
 
-    fmt.Fprintf(w,"{\"led_mode\":"+ mode +",\"speed\":" + speed + ",\"vivid\":" + strconv.FormatBool(vivid) + ", \"content\": \"" + text_content + "\","+"\"text_rgb\":{\"r\":" + text_rgb[0] + ",\"g\":" + text_rgb[1] + ",\"b\":" + text_rgb[2] + "},"+ "\"background_rgb\":{\"r\":" + background_rgb[0] + ",\"g\":" + background_rgb[1] + ",\"b\":" + background_rgb[2] + "}}");
+    //get hostname
+    hostname,err := os.Hostname()
+    if err != nil {
+       hostname = ""
+    }
+
+    //get IP address
+    addrs, err := net.InterfaceAddrs()
+	if err != nil {
+	   fmt.Println(err)
+	}
+
+	var tmp_ip string
+    ipCnt := 0
+
+	for _, addr := range addrs {
+
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+        var ip net.IP
+
+        switch v := addr.(type) {
+        case *net.IPNet:
+            ip = v.IP
+
+        case *net.IPAddr:
+            ip = v.IP
+
+        }
+        if ip == nil {
+            continue
+        }
+        ip = ip.To4()
+        if ip == nil {
+            continue
+        }
+
+		ipCnt = ipCnt+1
+
+		if ipCnt>2 {
+		continue
+		}
+		tmp_ip = ip.String()
+        fmt.Println("ip = " + tmp_ip)
+		}
+    }
+
+    fmt.Fprintf(w,"{\"led_mode\":"+ mode + ",\"ip\":\"" + tmp_ip + "\",\"hostname\":\"" + hostname + "\",\"speed\":" + speed + ",\"vivid\":" + strconv.FormatBool(vivid) + ", \"content\": \"" + text_content + "\","+"\"text_rgb\":{\"r\":" + text_rgb[0] + ",\"g\":" + text_rgb[1] + ",\"b\":" + text_rgb[2] + "},"+ "\"background_rgb\":{\"r\":" + background_rgb[0] + ",\"g\":" + background_rgb[1] + ",\"b\":" + background_rgb[2] + "}}");
 	w.(http.Flusher).Flush()
 }
 
