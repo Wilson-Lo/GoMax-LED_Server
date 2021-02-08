@@ -19,23 +19,6 @@ const (
 
 func main() {
 
-/*
-	port, err := serial.Open(
-		&serial.Config{
-			Address:  "/dev/ttyAMA0",
-			BaudRate: 115200,
-			DataBits: 8,
-			StopBits: 1,
-			Parity:   "N",
-			Timeout: 1 * time.Second,
-	})
-
-	if err != nil {
-		log.Fatal("Comport open fail")
-	}
-	defer port.Close() */
-
-
 	fmt.Println(" LED Server v1.0.0")
 	fmt.Println(" PI MAC address: " + getMacAddrs())
 	router := NewRouter()
@@ -62,6 +45,7 @@ func main() {
 		}()
 }
 
+// Start to listen UDP, ip = 255.255.255.255, port = 5002
 func startUDPServer(){
 
     fmt.Println(" Start UDP Server")
@@ -187,7 +171,7 @@ func serve(listener net.PacketConn, addr net.Addr, buf []byte) {
      }
 
 }
-//(string, error)
+//addr
 func sendUDP(addr string, msg []byte) {
     fmt.Println("sendUDP data size: %d" , len(msg))
 	conn, _ := net.Dial("udp", addr)

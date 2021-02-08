@@ -1,0 +1,1 @@
+go build main.go ast_func.go ast_api.go system.go router.go ebc.go

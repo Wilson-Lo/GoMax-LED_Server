@@ -613,6 +613,8 @@ func api_SetHostName(w http.ResponseWriter, r *http.Request) {
     fmt.Println(hostnameObject.Hostname)
     cmd := exec.Command( "sudo", "sed", "-i", "1c " + hostnameObject.Hostname, "/etc/hostname")
 	_,_ = cmd.Output()
+	cmd2 := exec.Command( "sudo", "sed", "-i", "7c 127.0.0.1       " + hostnameObject.Hostname, "/etc/hosts")
+    _,_ = cmd2.Output()
    	fmt.Fprintf(w,"{\"result\":\"ok\"}")
    	w.(http.Flusher).Flush()
 }
