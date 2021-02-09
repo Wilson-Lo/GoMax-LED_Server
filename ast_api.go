@@ -11,9 +11,14 @@ import (
 	"strconv"
 	"strings"
 	"bufio"
+	"crypto/md5"
 	"os/exec"
     "encoding/base64"
+    "time"
 )
+
+//use to fw update base64
+var fw_file string
 
 /**
 *  Get Text RGB
@@ -666,4 +671,77 @@ func api_GetConfigFileBase64(w http.ResponseWriter, r *http.Request) {
      }
 }
 
+/**
+*  POST web & golang server file base64 string
+*/
+func api_fw_update(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")//delete this line when FW is publishing **************************
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Fprintf(w,"{\"result\":\"%v\"}", fw_update(r.FormValue("total"),r.FormValue("index"),r.FormValue("md5"),r.FormValue("base64")))
+	w.(http.Flusher).Flush()
+}
+
+//fw update functions
+func fw_update(total,index, md5Data , data64 string)(string){
+
+	b64_ := strings.Replace(data64, " ", "+",-1)
+
+	if index=="1"{//clear
+	fw_file ="";
+	}
+	fw_file = fw_file + b64_
+
+	m_data := []byte(b64_)
+	md5_Data := md5.Sum(m_data)
+
+	md5str1 := fmt.Sprintf("%X", md5_Data) //byte to hex
+	fmt.Println("Ori:"+md5Data)
+	fmt.Println("data:"+md5str1)
+	if md5Data!=md5str1{
+	return "failed"
+	}
+
+	if total == index{
+
+	unbased, err := base64.StdEncoding.DecodeString(fw_file)
+	if err != nil {
+    	panic("Cannot decode b64")
+		return "failed"
+	}
+	_ = ioutil.WriteFile("./tmp/fw.zip",unbased, 0644)
+	fmt.Println("wait for save firmware...")
+	time.Sleep(3000 * time.Millisecond)
+	sync()
+	time.Sleep(2000 * time.Millisecond)
+	fmt.Println("start update...")
+	go runShell()
+	time.Sleep(3000 * time.Millisecond)
+	sync()
+	}
+	return "OK";
+}
+
+//linux command: sync
+func sync(){
+    cmd := exec.Command("sync")
+	out,err := cmd.Output()
+    if err != nil {
+        fmt.Println(err)
+    }
+	fmt.Println(string(out))
+}
+
+//linux run update script
+func runShell(){
+
+	command := `sh update.sh`
+    cmd := exec.Command("sh", "update.sh")
+    output, err := cmd.Output()
+    if err != nil {
+        fmt.Printf("Execute Shell:%s failed with error:%s", command, err.Error())
+        return
+    }
+    fmt.Println("Execute Shell:%s finished with output:\n%s", command, string(output))
+}

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "update server"
-unzip -o /home/pi/golang/controller/tmp/fw.zip -d /home/pi/app/ &
+unzip -o /home/linaro/Desktop/golang/tmp/fw.zip -d /home/linaro/Desktop/golang/ &
 
 wait
 echo "update end"

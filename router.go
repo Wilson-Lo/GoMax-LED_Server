@@ -24,6 +24,7 @@ func NewRouter() *mux.Router {
 	r.HandleFunc("/api/led/hostname", api_SetHostName).Methods("POST")
 	r.HandleFunc("/api/led/hostname", api_GetHostName).Methods("GET")
 	r.HandleFunc("/api/led/config", api_GetConfigFileBase64).Methods("GET")
+	r.HandleFunc("/api/led/fw", api_fw_update).Methods("POST")
 	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./www/"))))
 	return r
 }
