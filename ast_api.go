@@ -639,3 +639,31 @@ func api_GetHostName(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+/**
+*  Get Config file base64 string
+*/
+func api_GetConfigFileBase64(w http.ResponseWriter, r *http.Request) {
+
+    fmt.Println("api_GetConfigFileBase64")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+     txtByteArray, err := ioutil.ReadFile(settingTXTPath) // just pass the file name
+     if err != nil {
+        fmt.Println(err)
+     }else{
+        fmt.Println("get txt to byte array successful !")
+     }
+
+     if txtByteArray != nil {
+        encodedBase64String := base64.StdEncoding.EncodeToString(txtByteArray)
+        fmt.Fprintf(w,"{\"base64\":\"" + encodedBase64String + "\"}")
+        w.(http.Flusher).Flush()
+     }else{
+        fmt.Fprintf(w,"{\"result\":\"failed\"}")
+        w.(http.Flusher).Flush()
+     }
+}
+
+
