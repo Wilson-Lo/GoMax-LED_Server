@@ -590,6 +590,8 @@ func api_UploadGIF(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w,"{\"result\":\"failed\"}")
     	return
     }
+   	time.Sleep(1000 * time.Millisecond)
+   	sync()
     _ = ioutil.WriteFile("../led.gif", unbased, 0644)
    	fmt.Fprintf(w,"{\"result\":\"ok\"}")
    	w.(http.Flusher).Flush()
