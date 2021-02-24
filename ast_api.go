@@ -621,7 +621,10 @@ func api_SetHostName(w http.ResponseWriter, r *http.Request) {
 	cmd2 := exec.Command( "sudo", "sed", "-i", "7c 127.0.0.1       " + hostnameObject.Hostname, "/etc/hosts")
     _,_ = cmd2.Output()
    	fmt.Fprintf(w,"{\"result\":\"ok\"}")
+
    	w.(http.Flusher).Flush()
+    time.Sleep(1500 * time.Millisecond)
+    go rebootShell()
 }
 
 /**
@@ -716,7 +719,7 @@ func fw_update(total,index, md5Data , data64 string)(string){
 	sync()
 	time.Sleep(2000 * time.Millisecond)
 	fmt.Println("start update...")
-	go runShell()
+	go runUpdateShell()
 	time.Sleep(3000 * time.Millisecond)
 	sync()
 	}
@@ -734,7 +737,7 @@ func sync(){
 }
 
 //linux run update script
-func runShell(){
+func runUpdateShell(){
 
 	command := `sh update.sh`
     cmd := exec.Command("sh", "update.sh")
@@ -744,4 +747,17 @@ func runShell(){
         return
     }
     fmt.Println("Execute Shell:%s finished with output:\n%s", command, string(output))
+}
+
+//linux run reboot script
+func rebootShell(){
+
+	command := `sh reboot.sh`
+    cmd := exec.Command("sh", "reboot.sh")
+    output, err := cmd.Output()
+    if err != nil {
+        fmt.Printf("Execute reboot shell:%s failed with error:%s", command, err.Error())
+        return
+    }
+    fmt.Println("Execute reboot shell:%s finished with output:\n%s", command, string(output))
 }
